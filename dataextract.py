@@ -2,46 +2,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+from datareader import DataReader
 from statistics import Statistics
 from computereturns import ComputeReturns
 
 
 base_dir = os.getcwd()
-def symbol_to_path(symbol):
-    """Return CSV file path given feature."""
-    base_dir = os.getcwd()
-    return os.path.join(base_dir, "BitcoinData", (str(symbol)))
-
-
-def get_data(symbols, dates):
-    """Read stock data (adjusted close) for given symbols from CSV files."""
-    df = pd.DataFrame(index=dates)
-
-    for symbol in symbols:
-        location = os.path.join(base_dir, "BitcoinData", symbol)
-        df_temp = pd.read_csv(location, index_col=0, parse_dates=True, \
-                            infer_datetime_format=True, dayfirst=True, \
-                            na_values=['nan'], header=None,
-                          names=['date', symbol.replace('.csv', '')])
-        df_temp.dropna()
-        df_temp.index = df_temp.index.normalize()
-        df_temp = normalize_data(df_temp)
-        df = df.join(df_temp)
-        df.dropna()
-
-    return df
-
-
-def get_btc(location, btc_file):
-    df_btc = pd.read_csv(location, index_col=0, parse_dates=True, \
-                        infer_datetime_format=True, dayfirst=True, \
-                        na_values=['nan'], header=None,
-                      names=['date', btc_file.replace('.csv', '')])
-    df_btc.dropna()
-    df_btc.index = df_btc.index.normalize()
-    return df_btc
-
-
 def normalize_data(df):
   """Normalize data using the first row of the dataframe."""
   return df / df.ix[0, :]
@@ -71,7 +37,10 @@ def test_run():
     symbols = os.listdir(location)
 
     #build dataframe consisting of all features
-    df = get_data(symbols, dates)
+    dfreader = DataReader()
+    location = os.path.join(base_dir, "BitcoinData")
+    df = dfreader.get_data(location, symbols, dates)
+    df = normalize_data(df)
 
     for index in range(len(symbols)):
         symbols[index] = symbols[index].strip('.csv')
@@ -83,8 +52,8 @@ def test_run():
 
     btc_file = "bitcoin-market-price.csv"
     location = os.path.join(base_dir, btc_file)
-    df_btc = get_btc(location, btc_file)
-    stats = Statistics(df, symbols)
+    df_btc = dfreader.get_btc(location, btc_file)
+    stats = Statistics(df)
     rmean = stats.get_rolling_mean(df_btc['bitcoin-market-price'], window=20)
     rstd = stats.get_rolling_std(df_btc.ix[:, 'bitcoin-market-price'], window=20)
     upper_band, lower_band = stats.get_bollinger_bands(rmean, rstd)
@@ -103,8 +72,7 @@ def test_run():
     plt.show()
 
     #compute daily returns
-    returns = ComputeReturns(df)
-    daily_returns = returns.compute_daily_returns(df)
+    daily_returns = stats.compute_daily_returns(df)
     plot_data(daily_returns, title="Daily returns", ylabel="Daily returns")
 
 

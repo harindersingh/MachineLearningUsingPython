@@ -2,9 +2,26 @@ import pandas as pd
 import os
 
 class Statistics:
-    def __init__(self, dataframe, columns):
+    def __init__(self, dataframe):
         self.dataframe = dataframe
-        self.columns = columns
+
+
+    def compute_daily_returns(self, df):
+        """
+        1. Daily returns
+            daily_ret[t] = (price[t]/price[t-1]) - 1
+        2. Cumulative returns
+            cumret[t] = (price[t]/price[0]) - 1
+        """
+        """Compute and return the daily return values."""
+        daily_returns = df.pct_change()
+        # Daily return values for the first date cannot be calculated. Set these to zero.
+        daily_returns.ix[0, :] = 0
+
+        # Alternative method
+        # daily_returns = (df / df.shift(1)) - 1
+        # daily_returns.ix[0, :] = 0
+        return daily_returns
 
 
     def get_rolling_mean(self, values, window):
