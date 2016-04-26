@@ -5,27 +5,11 @@ import os
 from datareader import DataReader
 from statistics import Statistics
 from computereturns import ComputeReturns
+from plotting import Plotting
+from utility import Utility
 
 
 base_dir = os.getcwd()
-def normalize_data(df):
-  """Normalize data using the first row of the dataframe."""
-  return df / df.ix[0, :]
-
-
-def plot_data(df, title="Bitcoin Data", xlabel="Date", ylabel="Price"):
-    """Plot stock prices with a custom title and meaningful axis labels."""
-    title = title.strip('.csv')
-    ax = df.plot(title=title, fontsize=12)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    plt.show()
-
-
-def plot_selected(df, columns, start_index, end_index):
-    """Plot the desired columns over index values in the given range."""
-    df = normalize_data(df)
-    plot_data(df.ix[start_index:end_index, columns], "Bitcoin")
 
 
 def test_run():
@@ -38,17 +22,19 @@ def test_run():
 
     #build dataframe consisting of all features
     dfreader = DataReader()
+    util = Utility()
     location = os.path.join(base_dir, "BitcoinData")
     df = dfreader.get_data(location, symbols, dates)
-    df = normalize_data(df)
+    df = util.normalize_data(df)
 
     for index in range(len(symbols)):
         symbols[index] = symbols[index].strip('.csv')
 
+    plotter = Plotting()
     #plot dataframe in selected range and given features list
-    #plot_selected(df, symbols, '2015-05-01', '2015-06-01')
+    plotter.plot_selected(df, symbols, '2015-05-01', '2015-06-01')
     #plot dataframe for all given data
-    #plot_data(df, "Bitcoin")
+    plotter.plot_data(df, "Bitcoin")
 
     btc_file = "bitcoin-market-price.csv"
     location = os.path.join(base_dir, btc_file)
