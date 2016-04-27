@@ -32,9 +32,9 @@ def test_run():
 
     plotter = DataPlotting()
     #plot dataframe in selected range and given features list
-    plotter.plot_selected(df, symbols, '2015-05-01', '2015-06-01')
+    #plotter.plot_selected(df, symbols, '2015-05-01', '2015-06-01')
     #plot dataframe for all given data
-    plotter.plot_data(df, "Bitcoin")
+    #plotter.plot_data(df, "Bitcoin")
 
     dates = pd.date_range('2010-01-01', '2016-01-01')
     btc_file = "bitcoin-market-price.csv"
@@ -45,9 +45,6 @@ def test_run():
     rmean = stats.get_rolling_mean(df_btc['bitcoin-market-price'], window=20)
     rstd = stats.get_rolling_std(df_btc.ix[:, 'bitcoin-market-price'], window=20)
     upper_band, lower_band = stats.get_bollinger_bands(rmean, rstd)
-
-    print df_btc.head()
-    print df_btc.tail()
 
     # Plot raw values, rolling mean and Bollinger Bands
     ax = df_btc['bitcoin-market-price'].plot(title="Bollinger Bands", \
@@ -60,22 +57,23 @@ def test_run():
     ax.set_xlabel("Date")
     ax.set_ylabel("Price")
     ax.legend(loc='upper left')
-    plt.show()
+    #plt.show()
 
     #compute daily returns
     daily_returns = stats.compute_daily_returns(df_btc)
-    plotter.plot_data(daily_returns, title="Daily returns", ylabel="Daily returns")
-    print daily_returns.head()
-    print daily_returns.tail()
+    #plotter.plot_data(daily_returns, title="Daily returns", ylabel="Daily returns")
 
     daily_returns.replace(to_replace=np.inf, value=np.NaN, inplace=True)
     # Plot a histogram
     daily_returns.hist(bins=21)
+    plt.show()
 
     # Get mean as standard deviation
     mean = daily_returns.mean()
     std = daily_returns.std()
 
+    print mean
+    print std
     plt.axvline(mean, color='w', linestyle='dashed', linewidth=2)
     plt.axvline(std, color='r', linestyle='dashed', linewidth=2)
     plt.axvline(-std, color='r', linestyle='dashed', linewidth=2)

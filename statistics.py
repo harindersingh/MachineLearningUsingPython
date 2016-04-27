@@ -14,13 +14,15 @@ class Statistics:
             cumret[t] = (price[t]/price[0]) - 1
         """
         """Compute and return the daily return values."""
-        daily_returns = df.pct_change()
+        # daily_returns = df.pct_change()
         # Daily return values for the first date cannot be calculated. Set these to zero.
-        daily_returns.ix[0, :] = 0
+        # daily_returns.ix[0, :] = 0
 
         # Alternative method
         # daily_returns = (df / df.shift(1)) - 1
-        # daily_returns.ix[0, :] = 0
+        daily_returns = df.copy()
+        daily_returns[1:] = (df[1:] / df[:-1].values)
+        daily_returns.ix[0, :] = 0
         return daily_returns
 
 
