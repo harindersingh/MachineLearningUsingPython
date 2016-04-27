@@ -32,11 +32,14 @@ class DataReader(object):
         return df
 
 
-    def get_btc(self, location, btc_file):
-        df_btc = pd.read_csv(location, index_col=0, parse_dates=True, \
+    def get_btc(self, location, btc_file, dates):
+        df_btc = pd.DataFrame(index=dates)
+        df_temp = pd.read_csv(location, index_col=0, parse_dates=True, \
                             infer_datetime_format=True, dayfirst=True, \
                             na_values=['nan'], header=None,
                           names=['date', btc_file.replace('.csv', '')])
-        df_btc.dropna()
+        df_temp.dropna()
+        df_temp.index = df_temp.index.normalize()
+        df_btc = df_btc.join(df_temp)
         df_btc.index = df_btc.index.normalize()
         return df_btc

@@ -5,7 +5,7 @@ import os
 from datareader import DataReader
 from statistics import Statistics
 from computereturns import ComputeReturns
-from plotting import Plotting
+from dataplotting import DataPlotting
 from utility import Utility
 
 
@@ -30,21 +30,26 @@ def test_run():
     for index in range(len(symbols)):
         symbols[index] = symbols[index].strip('.csv')
 
-    plotter = Plotting()
+    plotter = DataPlotting()
     #plot dataframe in selected range and given features list
     plotter.plot_selected(df, symbols, '2015-05-01', '2015-06-01')
     #plot dataframe for all given data
     plotter.plot_data(df, "Bitcoin")
 
+    dates = pd.date_range('2010-01-01', '2016-01-01')
     btc_file = "bitcoin-market-price.csv"
     location = os.path.join(base_dir, btc_file)
-    df_btc = dfreader.get_btc(location, btc_file)
+    df_btc = dfreader.get_btc(location, btc_file, dates)
+
     stats = Statistics(df)
     rmean = stats.get_rolling_mean(df_btc['bitcoin-market-price'], window=20)
     rstd = stats.get_rolling_std(df_btc.ix[:, 'bitcoin-market-price'], window=20)
     upper_band, lower_band = stats.get_bollinger_bands(rmean, rstd)
 
-    # Plot raw SPY values, rolling mean and Bollinger Bands
+    print df_btc.head()
+    print df_btc.tail()
+
+    # Plot raw values, rolling mean and Bollinger Bands
     ax = df_btc['bitcoin-market-price'].plot(title="Bollinger Bands", \
                                             label='bitcoin-market-price')
     rmean.plot(label='Rolling mean', ax=ax)
@@ -58,8 +63,24 @@ def test_run():
     plt.show()
 
     #compute daily returns
-    daily_returns = stats.compute_daily_returns(df)
-    plot_data(daily_returns, title="Daily returns", ylabel="Daily returns")
+    daily_returns = stats.compute_daily_returns(df_btc)
+    plotter.plot_data(daily_returns, title="Daily returns", ylabel="Daily returns")
+    print daily_returns.head()
+    print daily_returns.tail()
+
+    daily_returns.replace(to_replace=np.inf, value=np.NaN, inplace=True)
+    # Plot a histogram
+    daily_returns.hist(bins=21)
+
+    # Get mean as standard deviation
+    mean = daily_returns.mean()
+    std = daily_returns.std()
+
+    plt.axvline(mean, color='w', linestyle='dashed', linewidth=2)
+    plt.axvline(std, color='r', linestyle='dashed', linewidth=2)
+    plt.axvline(-std, color='r', linestyle='dashed', linewidth=2)
+    plt.show()
+
 
 
 if __name__ == "__main__":
