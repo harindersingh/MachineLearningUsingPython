@@ -1,10 +1,9 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 from datareader import DataReader
 from statistics import Statistics
-from computereturns import ComputeReturns
 from dataplotting import DataPlotting
 from utility import Utility
 
@@ -66,19 +65,25 @@ def test_run():
     daily_returns.replace(to_replace=np.inf, value=np.NaN, inplace=True)
     # Plot a histogram
     daily_returns.hist(bins=21)
-    plt.show()
 
     # Get mean as standard deviation
     mean = daily_returns.mean()
     std = daily_returns.std()
 
-    print mean
-    print std
-    plt.axvline(mean, color='w', linestyle='dashed', linewidth=2)
-    plt.axvline(std, color='r', linestyle='dashed', linewidth=2)
-    plt.axvline(-std, color='r', linestyle='dashed', linewidth=2)
+    #print type(mean)
+    plt.axvline(mean[0], color='w', linestyle='dashed', linewidth=2)
+    plt.axvline(std[0], color='r', linestyle='dashed', linewidth=2)
+    plt.axvline(-std[0], color='r', linestyle='dashed', linewidth=2)
     plt.show()
 
+    # Scatterplots
+    df.plot(kind='scatter', x='hash_rate', y='market_cap')
+    beta_XOM, alpha_XOM = np.polyfit(df['hash_rate'], df['market_cap'], 1)  # fit poly degree 1
+    #plt.plot(df['hash_rate'], beta_XOM*df['market_cap'] + alpha_XOM, '-', color='r')
+    plt.show()
+
+    # Calculate correlation coefficient
+    daily_returns.corr(method='pearson')
 
 
 if __name__ == "__main__":
