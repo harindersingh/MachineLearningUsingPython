@@ -1,3 +1,4 @@
+'''py utility file to check functions in other utility files'''
 import os
 import pandas as pd
 import numpy as np
@@ -12,6 +13,7 @@ base_dir = os.getcwd()
 
 
 def test_run():
+    '''function to test all the utlities'''
     # Define a date range
     dates = pd.date_range('2015-04-02', '2016-04-01')
 
@@ -31,9 +33,9 @@ def test_run():
 
     plotter = DataPlotting()
     #plot dataframe in selected range and given features list
-    #plotter.plot_selected(df, symbols, '2015-05-01', '2015-06-01')
+    plotter.plot_selected(df, symbols, '2015-05-01', '2015-06-01')
     #plot dataframe for all given data
-    #plotter.plot_data(df, "Bitcoin")
+    plotter.plot_data(df, "Bitcoin")
 
     dates = pd.date_range('2010-01-01', '2016-01-01')
     btc_file = "bitcoin-market-price.csv"
@@ -56,11 +58,11 @@ def test_run():
     ax.set_xlabel("Date")
     ax.set_ylabel("Price")
     ax.legend(loc='upper left')
-    #plt.show()
+    plt.show()
 
     #compute daily returns
     daily_returns = stats.compute_daily_returns(df_btc)
-    #plotter.plot_data(daily_returns, title="Daily returns", ylabel="Daily returns")
+    plotter.plot_data(daily_returns, title="Daily returns", ylabel="Daily returns")
 
     daily_returns.replace(to_replace=np.inf, value=np.NaN, inplace=True)
     # Plot a histogram
@@ -79,11 +81,12 @@ def test_run():
     # Scatterplots
     df.plot(kind='scatter', x='hash_rate', y='market_cap')
     beta_XOM, alpha_XOM = np.polyfit(df['hash_rate'], df['market_cap'], 1)  # fit poly degree 1
-    #plt.plot(df['hash_rate'], beta_XOM*df['market_cap'] + alpha_XOM, '-', color='r')
+    plt.plot(df['hash_rate'], beta_XOM*df['market_cap'] + alpha_XOM, '-', color='r')
     plt.show()
 
     # Calculate correlation coefficient
-    daily_returns.corr(method='pearson')
+    correlation = df['avg_block_size'].corr(df['n_tx'], method='pearson')
+    print correlation
 
 
 if __name__ == "__main__":
